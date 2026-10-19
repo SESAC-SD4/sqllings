@@ -85,7 +85,7 @@ func TestResetPlayDoesNotHangOnLock(t *testing.T) {
 	<-done
 	out, _ := pg.Run("SELECT count(*) FROM public.titles;")
 	if !strings.Contains(out.Text, "8807") {
-		t.Fatal("실패한 초기화가 놀이터를 반쯤 지웠다:", out.Text)
+		t.Fatal("실패한 초기화가 터미널 2의 표를 반쯤 지웠다:", out.Text)
 	}
 }
 

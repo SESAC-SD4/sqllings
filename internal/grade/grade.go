@@ -1,5 +1,5 @@
 // Package grade는 학생 SQL을 채점 스키마 안 트랜잭션에서 실행해 기준과 비교한다.
-// 한 번의 채점 = psql 하나 + 트랜잭션 하나. 학생 놀이터(public)는 건드리지 않는다.
+// 한 번의 채점 = psql 하나 + 트랜잭션 하나. 터미널 2의 표(public)는 건드리지 않는다.
 package grade
 
 import (
@@ -45,6 +45,9 @@ func build(ex *exercise.Exercise, student string) string {
 	// 앞선 채점이 비정상으로 끝나 스키마가 남았어도 스스로 복구한다(트랜잭션 안이라 지워도 ROLLBACK 된다).
 	b.WriteString("DROP SCHEMA IF EXISTS sqllings_grade CASCADE;\nCREATE SCHEMA sqllings_grade;\nSET LOCAL search_path TO sqllings_grade;\n")
 	b.WriteString(seed.Script(ex.Chapter))
+	if ex.Setup != "" {
+		b.WriteString("\n" + withSemicolon(ex.Setup))
+	}
 	b.WriteString("\nSAVEPOINT s0;\n")
 	b.WriteString(machine())
 	b.WriteString("\\echo @@R@@\n")

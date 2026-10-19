@@ -26,6 +26,18 @@ var cases = map[int]tcase{
 	12: {"SELECT count(*) FROM titles WHERE title LIKE '%Night%';", "값이 다릅니다", "SELECT count(*) FROM titles WHERE lower(title) LIKE '%night%'"},
 	13: {"SELECT count(*) FROM titles WHERE country = 'Japan';", "값이 다릅니다", "SELECT count(*) FROM titles WHERE position('Japan' in country) > 0"},
 	14: {"SELECT title, rating FROM titles WHERE rating LIKE 'min%' ORDER BY title;", "0행", "SELECT title, rating FROM titles WHERE rating LIKE '% min' ORDER BY 1"},
+	15: {"UPDATE titles SET description = '조선 시대 좀비 사극' WHERE title LIKE 'Kingdom%';", "상태가 다릅니다", "UPDATE titles SET description = '조선 시대 좀비 사극' WHERE title = 'Kingdom'"},
+	16: {"INSERT INTO titles (show_id, type, title) VALUES ('s9001', 'Movie', 'X');", "상태가 다릅니다", "INSERT INTO titles (show_id, type, title, release_year, country) VALUES ('s9001', 'TV Show', '나의 아저씨', 2018, 'South Korea')"},
+	17: {"UPDATE titles SET rating = 'NR';", "상태가 다릅니다", "UPDATE titles SET rating = 'NR' WHERE rating IN ('UR')"},
+	18: {"UPDATE titles SET country = 'France, Algeria' WHERE country LIKE '%,%';", "상태가 다릅니다", "UPDATE titles SET country = ltrim(country, ', ') WHERE country LIKE ',%'"},
+	19: {"SELECT title, date_added FROM titles WHERE country = 'South Korea' ORDER BY date_added DESC LIMIT 3;", "값이 다릅니다", "SELECT title, date_added FROM titles WHERE country = 'South Korea' ORDER BY date_added DESC NULLS LAST LIMIT 3"},
+	20: {"SELECT count(*) FROM titles WHERE seasons > 5;", "값이 다릅니다", "SELECT count(*) FROM titles WHERE type = 'TV Show' AND seasons >= 5"},
+	21: {"ALTER TABLE titles ADD CONSTRAINT titles_country_check CHECK (country NOT LIKE '%,%');", "에러", "ALTER TABLE titles ADD CONSTRAINT titles_country_check CHECK (left(country, 1) <> ',')"},
+	22: {"ALTER TABLE titles ADD CONSTRAINT titles_minutes_check CHECK (minutes >= 0);", "상태가 다릅니다", "ALTER TABLE titles ADD CONSTRAINT titles_minutes_check CHECK (minutes >= 1)"},
+	23: {"SELECT title, minutes FROM titles WHERE date_added BETWEEN '2020-01-01' AND '2020-12-31' ORDER BY minutes DESC LIMIT 3;", "값이 다릅니다", "SELECT title, minutes FROM titles WHERE type = 'Movie' AND date_added >= '2020-01-01' AND date_added < '2021-01-01' ORDER BY minutes DESC LIMIT 3"},
+	24: {"SELECT type, count(*) FROM titles WHERE release_year = 2019 GROUP BY type;", "값이 다릅니다", "SELECT type, count(*) FROM titles WHERE date_added >= '2019-01-01' AND date_added < '2020-01-01' GROUP BY 1"},
+	25: {"SELECT rating, count(*) FROM titles WHERE minutes >= 120 GROUP BY rating ORDER BY count(*) DESC LIMIT 3;", "값이 다릅니다", "SELECT rating, count(*) FROM titles WHERE type = 'Movie' AND minutes > 120 GROUP BY rating ORDER BY count(*) DESC LIMIT 3"},
+	26: {"SELECT duration, count(*) FROM titles WHERE type = 'TV Show' GROUP BY duration ORDER BY count(*) DESC LIMIT 3;", "값이 다릅니다", "SELECT seasons, count(*) FROM titles WHERE type = 'TV Show' AND seasons IS NOT NULL GROUP BY 1 ORDER BY 2 DESC LIMIT 3"},
 }
 
 func TestRegistryShape(t *testing.T) {
@@ -55,8 +67,14 @@ func TestRegistryShape(t *testing.T) {
 func TestNoAnswerInHints(t *testing.T) {
 	norm := func(s string) string { return strings.Join(strings.Fields(strings.ToLower(s)), " ") }
 	for _, ex := range All() {
-		ref := []rune(norm(strings.TrimSuffix(ex.Reference, ";")))
+		refText := strings.TrimSuffix(ex.Reference, ";")
 		text := norm(ex.Prompt + " " + strings.Join(ex.Hints, " "))
+		// 문제가 알려 줘야 하는 이름(예: 규칙 이름 `titles_country_check`)은 정답 조각으로 보지 않는다.
+		for _, m := range regexp.MustCompile("`([^`]+)`").FindAllStringSubmatch(ex.Prompt, -1) {
+			refText = strings.ReplaceAll(refText, m[1], " ")
+			text = strings.ReplaceAll(text, norm(m[1]), " ")
+		}
+		ref := []rune(norm(refText))
 		for i := 0; i+20 <= len(ref); i++ {
 			if frag := string(ref[i : i+20]); strings.Contains(text, frag) {
 				t.Errorf("%s: 힌트에 정답 조각 %q", ex.Slug, frag)

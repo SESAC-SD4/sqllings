@@ -39,7 +39,7 @@ func Script(ch int) string {
 	return b.String()
 }
 
-// ResetPlay는 학생 놀이터(public)의 titles를 지우고 그 장의 시작 상태로 다시 만든다.
+// ResetPlay는 터미널 2의 표(public)의 titles를 지우고 그 장의 시작 상태로 다시 만든다.
 // 학생이 직접 만든 다른 테이블은 지우지 않고 이름만 돌려준다.
 func ResetPlay(ch int) ([]string, error) {
 	// 한 트랜잭션으로 묶어 중간에 실패해도 반쯤 지워진 상태가 남지 않게 한다.

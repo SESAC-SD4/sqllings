@@ -22,7 +22,7 @@ type Renderer func(markdown string, width int) string
 // Grader는 채점 함수다. 진짜는 grade.Grade, 테스트는 가짜를 넣는다.
 type Grader func(*exercise.Exercise, string) grade.Result
 
-// Resetter는 놀이터(public)를 그 장의 시작 상태로 다시 만든다. 진짜는 seed.ResetPlay.
+// Resetter는 터미널 2의 표(public)를 그 장의 시작 상태로 다시 만든다. 진짜는 seed.ResetPlay.
 type Resetter func(ch int) ([]string, error)
 
 type Mode int
@@ -250,7 +250,7 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, nil
 	case "ctrl+r":
 		m.mode, m.confirm = ModeConfirm, confirmPlay
-		m.status = fmt.Sprintf("놀이터(public)를 %d장 시작 상태로 다시 만들까요? 터미널 2에서 한 작업이 지워집니다 (y/n)", m.cur().Chapter)
+		m.status = "터미널 2의 표를 이 문제의 처음 상태로 되돌릴까요? 터미널 2에서 한 작업이 지워집니다 (y/n)"
 	case "ctrl+x":
 		m.mode, m.confirm = ModeConfirm, confirmAll
 		m.status = fmt.Sprintf("전체 초기화: %d문제의 ✅ 기록과 힌트를 모두 지울까요? (y/n)", len(m.exs))
@@ -341,7 +341,7 @@ func (m *Model) resetPlay() {
 		m.status = "❌ 진행 상황을 저장하지 못했습니다: " + err.Error()
 		return
 	}
-	m.status = fmt.Sprintf("✅ 놀이터를 %d장 데이터로 만들었습니다. 터미널 2에서 다시 SELECT 해 보세요", ch)
+	m.status = "✅ 터미널 2의 표를 되돌렸습니다. 터미널 2에서 다시 SELECT 해 보세요"
 	if len(others) > 0 {
 		m.status += " · 다른 테이블은 그대로 두었습니다: " + strings.Join(others, ", ")
 	}
@@ -362,8 +362,7 @@ func (m Model) Content() string {
 	ex := m.cur()
 	var b strings.Builder
 	if m.prog.PlayChapter != 0 && m.prog.PlayChapter != ex.Chapter {
-		fmt.Fprintf(&b, "> ⚠️ 터미널 2의 놀이터는 지금 %d장 데이터입니다. 이 문제는 %d장 — Ctrl+R로 바꾸세요 (채점은 늘 %d장 데이터로 합니다)\n\n",
-			m.prog.PlayChapter, ex.Chapter, ex.Chapter)
+		b.WriteString("> ⚠️ 터미널 2의 표가 이 문제와 다릅니다. **Ctrl+R → y**를 누르면 이 문제의 표로 바뀝니다.\n\n")
 	}
 	b.WriteString("# " + ex.Title + "\n\n")
 	if m.mode == ModeHint {

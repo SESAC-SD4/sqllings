@@ -92,10 +92,10 @@ func cmdHelp(out io.Writer) {
 
   %[1]s                 분할 화면으로 시작 (= %[1]s watch)
   %[1]s list            문제 목록
-  %[1]s start N         N번 문제를 보여 주고, 놀이터를 그 장으로 맞춥니다
+  %[1]s start N         N번 문제를 보여 주고, 터미널 2의 표를 그 문제에 맞춥니다
   %[1]s check N 파일     파일에 적은 SQL로 N번을 채점합니다
   %[1]s hint N          N번 힌트를 한 단계씩
-  %[1]s reset N         놀이터(public)를 N번 문제의 장으로 다시 만듭니다
+  %[1]s reset N         터미널 2의 표(public)를 N번 문제의 처음 상태로 되돌립니다
   %[1]s help            이 도움말
 
 터미널 2: psql -U sd4 -d sqllings
@@ -123,7 +123,7 @@ func cmdList(out io.Writer, prog *progress.Progress) int {
 	for _, ex := range all {
 		if ex.Chapter != last {
 			last = ex.Chapter
-			fmt.Fprintf(out, "\n[%d장]\n", ex.Chapter)
+			fmt.Fprintf(out, "\n[%s]\n", exercise.ChapterName(ex.Chapter))
 		}
 		mark := "⬜"
 		if prog.IsPassed(ex.ID) {
@@ -152,7 +152,7 @@ func resetTo(ch int, out io.Writer, prog *progress.Progress) int {
 		fmt.Fprintf(out, "❌ 진행 상황을 저장하지 못했습니다: %v\n", err)
 		return 1
 	}
-	fmt.Fprintf(out, "✅ 놀이터를 %d장 데이터로 만들었습니다.\n", ch)
+	fmt.Fprintln(out, "✅ 터미널 2의 표를 되돌렸습니다.")
 	if len(others) > 0 {
 		fmt.Fprintf(out, "다른 테이블은 그대로 두었습니다: %s\n", strings.Join(others, ", "))
 	}
@@ -165,7 +165,7 @@ func cmdStart(args []string, in io.Reader, out io.Writer, prog *progress.Progres
 		return 1
 	}
 	if prog.PlayChapter != ex.Chapter {
-		fmt.Fprintf(out, "놀이터가 %d장 데이터가 아닙니다. %d장 데이터로 바꿀까요? 터미널 2에서 한 작업이 지워집니다 (y/n) ", ex.Chapter, ex.Chapter)
+		fmt.Fprint(out, "터미널 2의 표가 이 문제와 다릅니다. 이 문제의 표로 바꿀까요? 터미널 2에서 한 작업이 지워집니다 (y/n) ")
 		if yes(in) {
 			if code := resetTo(ex.Chapter, out, prog); code != 0 {
 				return code
@@ -241,7 +241,7 @@ func cmdReset(args []string, in io.Reader, out io.Writer, prog *progress.Progres
 	if ex == nil {
 		return 1
 	}
-	fmt.Fprintf(out, "놀이터(public)를 %d장 시작 상태로 다시 만들까요? 터미널 2에서 한 작업이 지워집니다 (y/n) ", ex.Chapter)
+	fmt.Fprint(out, "터미널 2의 표를 이 문제의 처음 상태로 되돌릴까요? 터미널 2에서 한 작업이 지워집니다 (y/n) ")
 	if !yes(in) {
 		fmt.Fprintln(out, "그대로 두었습니다.")
 		return 0

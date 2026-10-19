@@ -32,7 +32,7 @@ func GlamourRenderer(dark bool) Renderer {
 	}
 }
 
-// Run은 처음 켤 때 놀이터를 만들고 화면을 띄운다. 접속 점검은 부르는 쪽(main)이 먼저 한다.
+// Run은 처음 켤 때 터미널 2의 표를 만들고 화면을 띄운다. 접속 점검은 부르는 쪽(main)이 먼저 한다.
 func Run(exs []*exercise.Exercise, prog *progress.Progress) error {
 	if prog.PlayChapter == 0 {
 		ch := exs[0].Chapter

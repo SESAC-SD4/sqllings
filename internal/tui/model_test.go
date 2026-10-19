@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -179,14 +180,14 @@ func TestResetPlayUsesExerciseChapter(t *testing.T) {
 	for i := 0; i < 14; i++ {
 		m = press(m, "down")
 	}
-	if !strings.Contains(m.Content(), "1장 데이터") {
+	if !strings.Contains(m.Content(), "터미널 2의 표가 이 문제와 다릅니다") {
 		t.Fatalf("장이 다르다는 안내가 없다:\n%s", m.Content())
 	}
 	m = press(m, "ctrl+r", "y")
 	if got != 2 || m.Prog().PlayChapter != 2 {
 		t.Fatalf("ch=%d play=%d", got, m.Prog().PlayChapter)
 	}
-	if strings.Contains(m.Content(), "1장 데이터입니다") {
+	if strings.Contains(m.Content(), "터미널 2의 표가 이 문제와 다릅니다") {
 		t.Fatal("바꾼 뒤에도 안내가 남았다")
 	}
 }
@@ -342,5 +343,30 @@ func TestGradeResultAfterMoveGoesToGradedExercise(t *testing.T) {
 	}
 	if strings.Contains(m.Result(), "8807") || strings.Contains(m.Status(), "채점 중") {
 		t.Fatalf("옮겨 간 문제에 앞 문제 결과가 보인다: status=%q result=%q", m.Status(), m.Result())
+	}
+}
+
+func TestListWindowKeepsCursor(t *testing.T) {
+	lines := []string{"문제"}
+	for i := 0; i < 40; i++ {
+		lines = append(lines, fmt.Sprint(i))
+	}
+	for _, cur := range []int{1, 20, 40} {
+		got := listWindow(lines, cur, 10)
+		if len(got) != 10 || got[0] != "문제" {
+			t.Fatalf("cur %d: %d줄", cur, len(got))
+		}
+		found := false
+		for _, l := range got {
+			if l == lines[cur] {
+				found = true
+			}
+		}
+		if !found {
+			t.Errorf("cur %d가 안 보인다: %v", cur, got)
+		}
+	}
+	if got := listWindow(lines[:5], 2, 10); len(got) != 5 {
+		t.Errorf("짧은 목록은 그대로: %d", len(got))
 	}
 }

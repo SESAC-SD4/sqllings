@@ -4,6 +4,8 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+
+	"sqllings/internal/exercise"
 )
 
 const (
@@ -20,7 +22,7 @@ var (
 	chapter  = lipgloss.NewStyle().Foreground(lipgloss.Color("244"))
 )
 
-const keyHelp = "Enter 채점 · Tab 힌트 · ↑↓ 문제 · Ctrl+L 칸 비우기 · Ctrl+R 놀이터 초기화 · Ctrl+X 전체 초기화 · PgUp/PgDn 스크롤 · Ctrl+C 종료"
+const keyHelp = "Enter 채점 · Tab 힌트 · ↑↓ 문제 · Ctrl+L 칸 비우기 · Ctrl+R 터미널 2 표 되돌리기 · Ctrl+X 전체 초기화 · PgUp/PgDn 스크롤 · Ctrl+C 종료"
 
 func (m *Model) layout() {
 	w := m.width - listWidth - paneExtra*2
@@ -42,13 +44,17 @@ func (m Model) View() string {
 	if m.width == 0 {
 		return "불러오는 중..."
 	}
-	var list strings.Builder
-	list.WriteString("문제\n")
-	last := 0
+	lines := []string{"문제"}
+	curLine := 0
+	lastCh, lastMod := 0, ""
 	for i, ex := range m.exs {
-		if ex.Chapter != last {
-			last = ex.Chapter
-			list.WriteString("\n" + chapter.Render(map[int]string{1: "1장 꺼내기", 2: "2장 고치기와 규칙"}[ex.Chapter]) + "\n")
+		if ex.Chapter != lastCh {
+			lastCh, lastMod = ex.Chapter, ""
+			lines = append(lines, "", chapter.Render(exercise.ChapterName(ex.Chapter)))
+		}
+		if ex.Module != "" && ex.Module != lastMod {
+			lastMod = ex.Module
+			lines = append(lines, chapter.Render("· "+ex.Module))
 		}
 		mark := "⬜"
 		if m.prog.IsPassed(ex.ID) {
@@ -58,13 +64,15 @@ func (m Model) View() string {
 		switch {
 		case i == m.cursor:
 			line = selected.Render("> " + mark + " " + ex.Title)
+			curLine = len(lines)
 		case m.prog.IsPassed(ex.ID):
 			line = passed.Render(line)
 		}
-		list.WriteString(line + "\n")
+		lines = append(lines, line)
 	}
 	total := m.desc.Height + m.out.Height + inputHeight + 4
-	left := pane.Width(listWidth).Height(total).Render(list.String())
+	lines = listWindow(lines, curLine, total)
+	left := pane.Width(listWidth).Height(total).Render(strings.Join(lines, "\n"))
 	// lipgloss의 Width는 좌우 여백을 포함하므로 +2를 해야 줄이 다시 접히지 않는다(gitlings와 같음).
 	desc := pane.Width(m.desc.Width + 2).Height(m.desc.Height).Render(m.desc.View())
 	input := pane.Width(m.desc.Width + 2).Height(inputHeight).Render(m.input.View())
@@ -74,4 +82,20 @@ func (m Model) View() string {
 	status := lipgloss.NewStyle().MaxWidth(m.width).Render(m.status)
 	help := keysTxt.MaxWidth(m.width).Render(keyHelp)
 	return lipgloss.JoinVertical(lipgloss.Left, body, status, help)
+}
+
+// listWindow는 목록이 창보다 길 때 고른 문제가 보이도록 잘라 낸다. 맨 위 "문제" 줄은 남긴다.
+func listWindow(lines []string, cur, height int) []string {
+	if len(lines) <= height || height < 2 {
+		return lines
+	}
+	body, cur, h := lines[1:], cur-1, height-1
+	start := cur - h/2
+	if start < 0 {
+		start = 0
+	}
+	if start > len(body)-h {
+		start = len(body) - h
+	}
+	return append([]string{lines[0]}, body[start:start+h]...)
 }

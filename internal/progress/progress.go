@@ -12,7 +12,7 @@ type Progress struct {
 	Passed      []int       `json:"passed"`
 	LastStarted int         `json:"last_started"`
 	HintLevel   map[int]int `json:"hint_level,omitempty"`
-	PlayChapter int         `json:"play_chapter"` // 놀이터(public)가 지금 몇 장 상태인가. 0 = 모름
+	PlayChapter int         `json:"play_chapter"` // 터미널 2의 표(public)가 지금 몇 장 상태인가. 0 = 모름
 }
 
 func file() string { return filepath.Join(workspace.Base(), ".progress.json") }

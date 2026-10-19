@@ -23,7 +23,7 @@ func TestList(t *testing.T) {
 	t.Setenv("HOME", t.TempDir())
 	code, out := runCmd(t, "", "list")
 	total := fmt.Sprintf("0/%d 통과", len(exercises.All()))
-	if code != 0 || !strings.Contains(out, "01 전체 작품 수") || !strings.Contains(out, total) || !strings.Contains(out, "[1장]") {
+	if code != 0 || !strings.Contains(out, "01 전체 작품 수") || !strings.Contains(out, total) || !strings.Contains(out, "[꺼내기]") {
 		t.Fatalf("%d\n%s", code, out)
 	}
 }

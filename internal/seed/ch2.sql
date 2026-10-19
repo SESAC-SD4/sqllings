@@ -3,6 +3,8 @@ UPDATE titles SET country = 'South Korea' WHERE show_id = 's194';
 ALTER TABLE titles ALTER COLUMN date_added TYPE date USING date_added::date;
 ALTER TABLE titles ADD COLUMN IF NOT EXISTS minutes integer;
 UPDATE titles SET minutes = split_part(duration, ' ', 1)::integer WHERE duration LIKE '% min';
+ALTER TABLE titles ADD COLUMN IF NOT EXISTS seasons integer;
+UPDATE titles SET seasons = split_part(duration, ' ', 1)::integer WHERE duration LIKE '% Season%';
 ALTER TABLE titles ALTER COLUMN show_id SET NOT NULL;
 ALTER TABLE titles ALTER COLUMN title SET NOT NULL;
 ALTER TABLE titles ALTER COLUMN type SET NOT NULL;

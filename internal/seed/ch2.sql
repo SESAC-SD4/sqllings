@@ -1,0 +1,14 @@
+UPDATE titles SET duration = rating, rating = NULL WHERE rating LIKE '%min';
+UPDATE titles SET country = 'South Korea' WHERE show_id = 's194';
+ALTER TABLE titles ALTER COLUMN date_added TYPE date USING date_added::date;
+ALTER TABLE titles ADD COLUMN IF NOT EXISTS minutes integer;
+UPDATE titles SET minutes = split_part(duration, ' ', 1)::integer WHERE duration LIKE '% min';
+ALTER TABLE titles ALTER COLUMN show_id SET NOT NULL;
+ALTER TABLE titles ALTER COLUMN title SET NOT NULL;
+ALTER TABLE titles ALTER COLUMN type SET NOT NULL;
+ALTER TABLE titles ADD CONSTRAINT titles_type_check CHECK (type IN ('Movie', 'TV Show'));
+ALTER TABLE titles ADD CONSTRAINT titles_rating_check CHECK (rating IN ('G', 'PG', 'PG-13', 'R', 'NC-17', 'NR', 'UR', 'TV-Y', 'TV-Y7', 'TV-Y7-FV', 'TV-G', 'TV-PG', 'TV-14', 'TV-MA'));
+ALTER TABLE titles ADD CONSTRAINT titles_release_year_check CHECK (release_year BETWEEN 1900 AND 2100);
+ALTER TABLE titles ADD CONSTRAINT titles_show_id_key UNIQUE (show_id);
+ALTER TABLE titles ADD COLUMN id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY;
+INSERT INTO titles (show_id, type, title, country, release_year) VALUES ('s8808', 'TV Show', 'The Glory', 'South Korea', 2022);

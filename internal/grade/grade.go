@@ -222,6 +222,9 @@ func firstDiff(a, b []string) int {
 }
 
 // Grade는 학생 SQL 하나를 채점한다.
+// hasFrom: 결과 문제의 답은 표에서 꺼내야 한다. 결과 예시에 보이는 값을 SELECT 8807;처럼 그대로 적어 통과하지 못하게.
+var hasFrom = regexp.MustCompile(`(?i)\bfrom\b`)
+
 func Grade(ex *exercise.Exercise, student string) Result {
 	student = sqltext.Normalize(student)
 	stmts := sqltext.Split(student)
@@ -233,6 +236,9 @@ func Grade(ex *exercise.Exercise, student string) Result {
 	}
 	if ex.Mode == exercise.ModeResult && len(stmts) != 1 {
 		return Result{Message: fmt.Sprintf("이 문제는 SELECT 한 문장으로 답합니다 (지금 %d문장)", len(stmts))}
+	}
+	if ex.Mode == exercise.ModeResult && !hasFrom.MatchString(student) {
+		return Result{Message: "표에서 꺼낸 결과여야 합니다 — FROM이 없습니다"}
 	}
 	if ex.FirstWord != "" && sqltext.FirstWord(stmts[0]) != ex.FirstWord {
 		return Result{Message: "이 문제는 " + ex.FirstWord + " 문장으로 답합니다"}

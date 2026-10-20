@@ -1,0 +1,6 @@
+            title            | date_added 
+-----------------------------+------------
+ Tayo the Little Bus         | 2021-09-06
+ Pororo - The Little Penguin | 2021-09-02
+ …
+(총 3행)

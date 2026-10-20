@@ -57,6 +57,7 @@ type Model struct {
 	answers   map[string]string
 	width     int
 	height    int
+	rest      int // 문제 칸과 결과 칸이 나눠 쓰는 높이
 	desc      viewport.Model
 	out       viewport.Model
 	input     textarea.Model
@@ -111,14 +112,14 @@ func New(exs []*exercise.Exercise, prog *progress.Progress, render Renderer, g G
 	return m
 }
 
-func (m Model) Cursor() int                { return m.cursor }
-func (m Model) Mode() Mode                 { return m.mode }
-func (m Model) Status() string             { return m.status }
-func (m Model) Result() string             { return m.result }
-func (m Model) Answer() string             { return m.input.Value() }
-func (m Model) Prog() *progress.Progress   { return m.prog }
-func (m Model) Init() tea.Cmd              { return textarea.Blink }
-func (m Model) cur() *exercise.Exercise    { return m.exs[m.cursor] }
+func (m Model) Cursor() int              { return m.cursor }
+func (m Model) Mode() Mode               { return m.mode }
+func (m Model) Status() string           { return m.status }
+func (m Model) Result() string           { return m.result }
+func (m Model) Answer() string           { return m.input.Value() }
+func (m Model) Prog() *progress.Progress { return m.prog }
+func (m Model) Init() tea.Cmd            { return textarea.Blink }
+func (m Model) cur() *exercise.Exercise  { return m.exs[m.cursor] }
 
 func (m *Model) answerOf(ex *exercise.Exercise) string {
 	if a, ok := m.answers[ex.Slug]; ok {
@@ -371,13 +372,28 @@ func (m Model) Content() string {
 		}
 	} else {
 		b.WriteString(strings.TrimSpace(ex.Prompt) + "\n")
+		if ex.Example != "" {
+			b.WriteString("\n**결과 예시**\n\n```\n" + ex.Example + "\n```\n")
+		}
 	}
 	return b.String()
 }
 
 func (m *Model) refresh() {
-	m.desc.SetContent(m.render(m.Content(), m.desc.Width))
+	content := m.render(m.Content(), m.desc.Width)
+	// 결과 칸은 결과 줄 수만큼, 남는 높이는 문제 칸으로
+	m.split(lineCount(content), lineCount(m.result))
+	m.desc.SetContent(content)
 	m.desc.GotoTop()
 	m.out.SetContent(m.result)
 	m.out.GotoTop()
+}
+
+// lineCount는 화면에 차지할 줄 수다. 빈 글자는 0.
+func lineCount(s string) int {
+	s = strings.TrimRight(s, "\n")
+	if s == "" {
+		return 0
+	}
+	return strings.Count(s, "\n") + 1
 }

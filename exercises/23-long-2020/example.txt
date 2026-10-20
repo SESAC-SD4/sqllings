@@ -1,0 +1,6 @@
+         title          | minutes 
+------------------------+---------
+ The School of Mischief |     253
+ No Longer kids         |     237
+ …
+(총 3행)

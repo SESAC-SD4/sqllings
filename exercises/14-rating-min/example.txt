@@ -1,0 +1,6 @@
+                title                 | rating 
+--------------------------------------+--------
+ Louis C.K. 2017                      | 74 min
+ Louis C.K.: Hilarious                | 84 min
+ …
+(총 3행)

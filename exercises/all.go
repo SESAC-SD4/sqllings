@@ -10,7 +10,7 @@ import (
 	"sqllings/internal/exercise"
 )
 
-//go:embed */*.md */*.sql
+//go:embed */*.md */*.sql */*.txt
 var files embed.FS
 
 var registry []*exercise.Exercise
@@ -30,6 +30,12 @@ func read(slug, name string, must bool) string {
 	return strings.TrimSpace(string(b))
 }
 
+// readRaw는 앞 공백을 살린다(psql 표의 머리줄은 공백으로 시작한다). 끝 줄바꿈만 지운다.
+func readRaw(slug, name string) string {
+	b, _ := files.ReadFile(slug + "/" + name)
+	return strings.TrimRight(string(b), "\n")
+}
+
 func register(id, chapter int, slug, title string, o opt) {
 	hints := exercise.ParseHints(read(slug, "hint.md", true))
 	if len(hints) != 3 {
@@ -42,6 +48,7 @@ func register(id, chapter int, slug, title string, o opt) {
 		Reference: read(slug, "reference.sql", o.mode != exercise.ModeError),
 		Check:     read(slug, "check.sql", o.mode == exercise.ModeState),
 		Setup:     read(slug, "setup.sql", false),
+		Example:   readRaw(slug, "example.txt"),
 	})
 }
 

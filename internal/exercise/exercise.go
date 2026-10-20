@@ -31,6 +31,7 @@ type Exercise struct {
 	Hints     []string
 	Reference string // 기준 SQL
 	Check     string // ModeState: 상태 확인 SQL
+	Example   string // 결과 예시(머리줄 + 앞 몇 행 + 총 행 수, example.txt). 빈 칸이면 없음
 	Setup     string // 채점 전에 장 데이터 위에 돌리는 준비 SQL(앞 문제에서 고친 상태 등). 빈 칸이면 없음
 }
 

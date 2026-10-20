@@ -57,6 +57,10 @@ func TestEmptyForbiddenAndMany(t *testing.T) {
 	if r := Grade(countMovies, "SELECT 1; SELECT 2;"); r.Passed || !strings.Contains(r.Message, "한 문장") {
 		t.Fatal(r)
 	}
+	// 결과 예시의 값을 그대로 적은 답
+	if r := Grade(countMovies, "SELECT 6131;"); r.Passed || !strings.Contains(r.Message, "FROM이 없습니다") {
+		t.Fatal(r)
+	}
 }
 
 func TestOrdered(t *testing.T) {
@@ -169,7 +173,7 @@ func TestStudentCannotTouchPublic(t *testing.T) {
 
 func TestServerDownMessage(t *testing.T) {
 	t.Setenv("PGPORT", "5999")
-	r := Grade(countMovies, "SELECT 1;")
+	r := Grade(countMovies, "SELECT count(*) FROM titles;")
 	if r.Passed || !strings.Contains(r.Message, "서버가 꺼져") {
 		t.Fatal(r)
 	}

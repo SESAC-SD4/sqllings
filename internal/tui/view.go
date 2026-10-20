@@ -12,6 +12,8 @@ const (
 	listWidth   = 32 // 가장 긴 줄 "  ⬜ 14★ 등급 칸의 이상한 값" + 여백
 	paneExtra   = 4  // 테두리 2 + 좌우 여백 2
 	inputHeight = 6
+	minDesc     = 6 // 문제 칸 최소 높이
+	minOut      = 5 // 결과 칸 최소 높이 (채점 전 빈 칸)
 )
 
 var (
@@ -34,10 +36,34 @@ func (m *Model) layout() {
 	if rest < 6 {
 		rest = 6
 	}
-	m.desc.Width, m.desc.Height = w, rest/2
-	m.out.Width, m.out.Height = w, rest-rest/2
+	m.rest = rest
+	m.desc.Width, m.out.Width = w, w
+	m.split(rest/2, 0)
 	m.input.SetWidth(w)
 	m.input.SetHeight(inputHeight)
+}
+
+// split은 결과 칸을 결과 줄 수만큼(최소 minOut) 주되 문제 칸 내용(descLines)을 가리지 않게 하고,
+// 남는 높이는 모두 문제 칸에 준다.
+func (m *Model) split(descLines, outLines int) {
+	keep := descLines
+	if keep > m.rest-minOut {
+		keep = m.rest - minOut
+	}
+	if keep < minDesc {
+		keep = minDesc
+	}
+	o := outLines
+	if o > m.rest-keep {
+		o = m.rest - keep
+	}
+	if o < minOut {
+		o = minOut
+	}
+	if o > m.rest {
+		o = m.rest
+	}
+	m.desc.Height, m.out.Height = m.rest-o, o
 }
 
 func (m Model) View() string {

@@ -1,0 +1,1 @@
+SELECT DISTINCT genres.name FROM people JOIN title_directors ON title_directors.person_id = people.id JOIN title_genres ON title_genres.title_id = title_directors.title_id JOIN genres ON genres.id = title_genres.genre_id WHERE people.name = 'Bong Joon Ho';

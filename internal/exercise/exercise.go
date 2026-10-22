@@ -36,7 +36,7 @@ type Exercise struct {
 }
 
 // chapterNames는 학생 화면에 보이는 파트 이름이다. 장 번호(수업 날짜 구분)는 강사용이라 화면에 내지 않는다.
-var chapterNames = map[int]string{1: "꺼내기", 2: "고치기와 규칙"}
+var chapterNames = map[int]string{1: "꺼내기", 2: "고치기와 규칙", 3: "잇고 세기"}
 
 // ChapterName은 장의 파트 이름을 돌려준다. 이름이 없는 장은 "파트 N".
 func ChapterName(ch int) string {

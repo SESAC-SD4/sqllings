@@ -1,0 +1,1 @@
+SELECT count(*) FROM titles WHERE id IN (SELECT title_id FROM title_genres WHERE genre_id = (SELECT id FROM genres WHERE name = 'Dramas')) AND id IN (SELECT title_id FROM title_countries WHERE country_id = (SELECT id FROM countries WHERE name = 'South Korea'));

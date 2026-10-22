@@ -1,0 +1,6 @@
+     name      | count 
+---------------+-------
+ Bong Joon Ho  |     2
+ Steven Yeun   |     0
+ …
+(총 3행)

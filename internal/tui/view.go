@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	listWidth   = 32 // 가장 긴 줄 "  ⬜ 14★ 등급 칸의 이상한 값" + 여백
+	listWidth   = 36 // 가장 긴 줄 "  ⬜ 10 인도 또는 영국 영화 (괄호)"(34칸) + 좌우 여백 2. 줄이 접히면 목록 높이가 늘어 화면이 밀린다
 	paneExtra   = 4  // 테두리 2 + 좌우 여백 2
 	inputHeight = 6
 	minDesc     = 6 // 문제 칸 최소 높이

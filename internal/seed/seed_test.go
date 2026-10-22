@@ -38,6 +38,19 @@ func TestChapters(t *testing.T) {
 	if got := last(t, 2, "SELECT data_type FROM information_schema.columns WHERE table_schema = current_schema() AND table_name = 'titles' AND column_name = 'date_added';"); got != "date" {
 		t.Fatal(got)
 	}
+	// 3장: 교안 fixes.sql 1~10 — 표 9개, 원본 칸(listed_in 등)은 지워졌다
+	if got := last(t, 3, "SELECT count(*) FROM titles;"); got != "8807" {
+		t.Fatalf("ch3 %s", got)
+	}
+	if got := last(t, 3, "SELECT count(*) FROM information_schema.tables WHERE table_schema = current_schema();"); got != "9" {
+		t.Fatalf("ch3 표 수 %s", got)
+	}
+	if got := last(t, 3, "SELECT count(*) FROM information_schema.columns WHERE table_schema = current_schema() AND table_name = 'titles' AND column_name IN ('rating', 'listed_in', 'country', 'director', 'cast_members');"); got != "0" {
+		t.Fatalf("ch3 원본 칸 %s", got)
+	}
+	if got := last(t, 3, "SELECT (SELECT count(*) FROM title_genres) || ' ' || (SELECT count(*) FROM title_countries) || ' ' || (SELECT count(*) FROM people) || ' ' || (SELECT count(*) FROM title_cast);"); got != "19323 10018 40948 64124" {
+		t.Fatalf("ch3 나눈 표 %s", got)
+	}
 }
 
 func TestResetPlayKeepsOthers(t *testing.T) {
@@ -113,5 +126,34 @@ func TestResetServerDownIsKorean(t *testing.T) {
 	_, err := ResetPlay(1)
 	if err == nil || strings.Contains(err.Error(), "\n") || !strings.Contains(err.Error(), "서버가 꺼져") {
 		t.Fatalf("%v", err)
+	}
+}
+
+// 3장 표 9개를 만든 뒤 1장으로 되돌리면 3장 표가 남지 않아야 한다(다른 테이블 목록에도 안 나온다).
+func TestResetPlayChapter3ThenBack(t *testing.T) {
+	if err := pg.Ping(); err != nil {
+		t.Skip(err)
+	}
+	if _, err := ResetPlay(3); err != nil {
+		t.Fatal(err)
+	}
+	out, _ := pg.Run("SELECT count(*) FROM public.title_cast;")
+	if !strings.Contains(out.Text, "64124") {
+		t.Fatal(out.Text)
+	}
+	others, err := ResetPlay(1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, o := range others {
+		for _, tb := range Tables {
+			if o == tb {
+				t.Fatalf("장 표 %s가 다른 테이블로 남았다: %v", tb, others)
+			}
+		}
+	}
+	out, _ = pg.Run("SELECT count(*) FROM pg_tables WHERE schemaname = 'public' AND tablename = 'people';")
+	if !strings.Contains(out.Text, "0") {
+		t.Fatal(out.Text)
 	}
 }

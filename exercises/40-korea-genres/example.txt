@@ -1,0 +1,6 @@
+          name          | count 
+------------------------+-------
+ International TV Shows |   152
+ Korean TV Shows        |   132
+ …
+(총 5행)

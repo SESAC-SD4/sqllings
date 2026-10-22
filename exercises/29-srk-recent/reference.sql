@@ -1,0 +1,1 @@
+SELECT titles.title, titles.release_year FROM people JOIN title_cast ON title_cast.person_id = people.id JOIN titles ON titles.id = title_cast.title_id WHERE people.name = 'Shah Rukh Khan' ORDER BY titles.release_year DESC, titles.title LIMIT 5;

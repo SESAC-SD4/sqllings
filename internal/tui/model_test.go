@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+	"github.com/charmbracelet/lipgloss"
 	"strings"
 	"testing"
 	"time"
@@ -368,5 +369,14 @@ func TestListWindowKeepsCursor(t *testing.T) {
 	}
 	if got := listWindow(lines[:5], 2, 10); len(got) != 5 {
 		t.Errorf("짧은 목록은 그대로: %d", len(got))
+	}
+}
+
+// 목록 줄이 접히면 화면 높이가 늘어난다(3장을 더했을 때 1장 제목 셋이 접혀 48줄이 됐다). 모든 제목이 한 줄에 들어가야 한다.
+func TestTitlesFitList(t *testing.T) {
+	for _, ex := range exercises.All() {
+		if w := lipgloss.Width("> ✅ " + ex.Title); w > listWidth-2 {
+			t.Errorf("%s: 목록 줄 %d칸 > %d", ex.Title, w, listWidth-2)
+		}
 	}
 }

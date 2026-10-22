@@ -1,0 +1,6 @@
+     name      | count 
+---------------+-------
+ Rajiv Chilaka |    22
+ Jan Suter     |    21
+ …
+(총 3행)

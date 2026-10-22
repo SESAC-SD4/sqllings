@@ -1,0 +1,6 @@
+                         title                         | release_year 
+-------------------------------------------------------+--------------
+ My Next Guest with David Letterman and Shah Rukh Khan |         2019
+ Jab Harry Met Sejal                                   |         2017
+ …
+(총 5행)

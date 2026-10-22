@@ -74,6 +74,11 @@ const (
 	m12 = "날짜와 숫자"
 	m13 = "규칙"
 	m14 = "섞어 풀기"
+	// 3장(잇고 세기)
+	m21 = "잇기 (JOIN)"
+	m22 = "빠진 것 찾기 (LEFT JOIN)"
+	m23 = "묶어 세기 (GROUP BY)"
+	m24 = "서브쿼리"
 )
 
 func init() {
@@ -103,4 +108,25 @@ func init() {
 	register(24, 2, "24-added-2019-by-type", "24 2019년 추가, 종류별", opt{module: m14})
 	register(25, 2, "25-long-movie-rating", "25 120분 넘는 영화 등급별", opt{module: m14, ordered: true})
 	register(26, 2, "26-seasons-count", "26★ 시즌 수별 TV 편수", opt{module: m14, optional: true, ordered: true})
+	register(27, 3, "27-squid-genres", "27 Squid Game의 장르", opt{module: m21})
+	register(28, 3, "28-kingdom-director", "28 Kingdom의 감독", opt{module: m21})
+	register(29, 3, "29-srk-recent", "29 Shah Rukh Khan 최근 5편", opt{module: m21, ordered: true})
+	register(30, 3, "30-g-rating-2021", "30 2021년 전체관람가", opt{module: m21})
+	register(31, 3, "31-bong-genres", "31★ 봉준호 작품의 장르", opt{module: m21, optional: true})
+	register(32, 3, "32-no-country", "32 나라가 없는 작품 수", opt{module: m22})
+	register(33, 3, "33-no-cast-by-type", "33 배우 없는 작품, 종류별", opt{module: m22})
+	register(34, 3, "34-no-director-2021-movie", "34 감독 없는 2021년 영화", opt{module: m22})
+	register(35, 3, "35-no-director-no-cast", "35★ 감독도 배우도 없음", opt{module: m22, optional: true})
+	register(36, 3, "36-top-directors", "36 감독 작품 수 상위 3", opt{module: m23, ordered: true})
+	register(37, 3, "37-year-count", "37 2015년 이후 연도별", opt{module: m23, ordered: true})
+	register(38, 3, "38-actors-30", "38 30편 이상 나온 배우", opt{module: m23})
+	register(39, 3, "39-tv-rating-name", "39 TV 등급 이름별 수", opt{module: m23, ordered: true})
+	register(40, 3, "40-korea-genres", "40 한국 작품 장르 상위 5", opt{module: m23, ordered: true})
+	register(41, 3, "41-director-count-zero", "41★ 감독 작품 수 0편", opt{module: m23, optional: true})
+	register(42, 3, "42-korean-tv-count", "42 Korean TV Shows 수", opt{module: m24})
+	register(43, 3, "43-oldest", "43 가장 오래된 작품", opt{module: m24})
+	register(44, 3, "44-long-2021", "44 평균보다 긴 2021 영화", opt{module: m24})
+	register(45, 3, "45-three-countries", "45 나라 셋 이상인 작품", opt{module: m24})
+	register(46, 3, "46-max-cast", "46★ 가장 많은 배우 수", opt{module: m24, optional: true})
+	register(47, 3, "47-korea-dramas", "47★ 한국 Dramas 작품 수", opt{module: m24, optional: true})
 }

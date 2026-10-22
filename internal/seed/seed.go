@@ -16,14 +16,21 @@ var ch1 string
 //go:embed ch2.sql
 var ch2 string
 
+//go:embed ch3.sql
+var ch3 string
+
 //go:embed netflix_titles.csv
 var csv string
 
 // Chapters는 v1이 다루는 장 수다.
-const Chapters = 2
+const Chapters = 3
 
-// Script는 지금 search_path에 그 장의 titles를 만드는 SQL이다(DROP 없이 CREATE부터).
+// Tables는 장 데이터가 만드는 표 전부다. 초기화는 장과 상관없이 이 표를 모두 지운다(3장에서 2장으로 돌아가도 3장 표가 남지 않게).
+var Tables = []string{"title_cast", "title_directors", "people", "title_countries", "countries", "title_genres", "genres", "titles", "ratings"}
+
+// Script는 지금 search_path에 그 장의 표를 만드는 SQL이다(DROP 없이 CREATE부터).
 // ch1은 교안 04의 titles.sql과 같고, ch2는 교안 fixes.sql 1~5번과 《The Glory》를 더한다.
+// ch3은 교안 fixes.sql 1~10번(나누기 · 원본 칸 지우기)을 더한다 — 《The Glory》는 없다.
 func Script(ch int) string {
 	var b strings.Builder
 	b.WriteString(ch1)
@@ -33,20 +40,23 @@ func Script(ch int) string {
 		b.WriteString("\n")
 	}
 	b.WriteString("\\.\n")
-	if ch >= 2 {
+	switch {
+	case ch >= 3:
+		b.WriteString(ch3)
+	case ch == 2:
 		b.WriteString(ch2)
 	}
 	return b.String()
 }
 
-// ResetPlay는 터미널 2의 표(public)의 titles를 지우고 그 장의 시작 상태로 다시 만든다.
+// ResetPlay는 터미널 2의 표(public)에서 장 데이터의 표(Tables)를 지우고 그 장의 시작 상태로 다시 만든다.
 // 학생이 직접 만든 다른 테이블은 지우지 않고 이름만 돌려준다.
 func ResetPlay(ch int) ([]string, error) {
 	// 한 트랜잭션으로 묶어 중간에 실패해도 반쯤 지워진 상태가 남지 않게 한다.
 	// 터미널 2에 끝나지 않은 트랜잭션이 titles를 잡고 있으면 DROP이 끝없이 기다리므로 3초에서 끊는다.
-	out, err := pg.Run("\\set VERBOSITY verbose\nBEGIN;\nSET LOCAL lock_timeout = '3s';\nSET LOCAL search_path TO public;\nDROP TABLE IF EXISTS titles CASCADE;\n" + Script(ch) +
+	out, err := pg.Run("\\set VERBOSITY verbose\nBEGIN;\nSET LOCAL lock_timeout = '3s';\nSET LOCAL search_path TO public;\nDROP TABLE IF EXISTS " + strings.Join(Tables, ", ") + " CASCADE;\n" + Script(ch) +
 		"\nCOMMIT;\n\\pset format unaligned\n\\pset tuples_only on\n\\echo @@OTHERS@@\n" +
-		"SELECT coalesce(string_agg(tablename, ',' ORDER BY tablename), '') FROM pg_tables WHERE schemaname = 'public' AND tablename <> 'titles';\n")
+		"SELECT coalesce(string_agg(tablename, ',' ORDER BY tablename), '') FROM pg_tables WHERE schemaname = 'public' AND tablename NOT IN ('" + strings.Join(Tables, "', '") + "');\n")
 	if err != nil {
 		return nil, err
 	}

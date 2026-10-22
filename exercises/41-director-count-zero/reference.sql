@@ -1,0 +1,1 @@
+SELECT people.name, count(title_directors.title_id) FROM people LEFT JOIN title_directors ON title_directors.person_id = people.id WHERE people.name IN ('Bong Joon Ho', 'Steven Yeun', 'Tilda Swinton') GROUP BY people.name;

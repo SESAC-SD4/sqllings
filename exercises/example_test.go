@@ -21,7 +21,7 @@ const exampleRows = 2
 var rowCount = regexp.MustCompile(`^\((\d+) rows?\)$|^\((\d+)개 행\)$`)
 
 // exampleOf는 기준 SQL의 psql 결과에서 머리줄 + 앞 exampleRows행 + 총 행 수를 만든다.
-// 숫자 하나가 답인 문제는 예시를 두지 않는다(값이 곧 답이다).
+// 결과가 한 행인 문제(숫자 하나 · 한 행 여러 열)는 예시를 두지 않는다(값이 곧 답이다).
 func exampleOf(display string) string {
 	lines := strings.Split(strings.TrimRight(display, "\n"), "\n")
 	if len(lines) < 3 {
@@ -36,7 +36,7 @@ func exampleOf(display string) string {
 		}
 		body = append(body, l)
 	}
-	if n == "" || (len(body) == 1 && !strings.Contains(lines[0], "|")) {
+	if n == "" || len(body) == 1 {
 		return ""
 	}
 	show := body

@@ -1,0 +1,1 @@
+SELECT genres.name, count(*) FROM countries JOIN title_countries ON title_countries.country_id = countries.id JOIN title_genres ON title_genres.title_id = title_countries.title_id JOIN genres ON genres.id = title_genres.genre_id WHERE countries.name = 'South Korea' GROUP BY genres.name ORDER BY count(*) DESC LIMIT 5;

@@ -1,0 +1,1 @@
+SELECT count(*) FROM titles LEFT JOIN title_directors ON title_directors.title_id = titles.id LEFT JOIN title_cast ON title_cast.title_id = titles.id WHERE title_directors.title_id IS NULL AND title_cast.title_id IS NULL;

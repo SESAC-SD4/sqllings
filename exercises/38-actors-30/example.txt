@@ -1,0 +1,6 @@
+       name       | count 
+------------------+-------
+ Akshay Kumar     |    30
+ Om Puri          |    30
+ …
+(총 8행)
